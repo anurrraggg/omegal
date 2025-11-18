@@ -1,7 +1,19 @@
+import {useState} from 'react';
+
 export const Landing = () => {
+  const [name, setName] = useState('');
   return (
 <div>
-    Landing page
+    <input type="text" onChange={(e) => {
+        setName(e.target.value);
+    }}>
+    </input>
+    <button onClick={() => {
+
+    // room join logic 
+
+
+    }}> JOIN </button>
 </div>
   );
 }
