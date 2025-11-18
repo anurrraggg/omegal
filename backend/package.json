@@ -9,5 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "socket.io": "^4.8.1",
+    "websocket": "^1.0.35"
+  }
 }
