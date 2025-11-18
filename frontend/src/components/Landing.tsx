@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import { Link } from 'react-router-dom';
 
 export const Landing = () => {
   const [name, setName] = useState('');
@@ -8,12 +9,12 @@ export const Landing = () => {
         setName(e.target.value);
     }}>
     </input>
-    <button onClick={() => {
+    <Link to={`/room?name=${name}`} onClick={() => {
 
     // room join logic 
 
 
-    }}> JOIN </button>
+    }}> JOIN </Link>
 </div>
   );
 }
