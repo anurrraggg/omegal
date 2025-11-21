@@ -1,15 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
-// Use production backend URL as fallback if env var is not set
-const URL = import.meta.env.VITE_BACKEND_URL || 
-  (import.meta.env.PROD ? "https://omegal-50vd.onrender.com");
+// Determine backend URL
+// Priority: 1) Environment variable, 2) Production fallback, 3) Localhost for dev
+const getBackendURL = () => {
+  // If environment variable is set, use it
+  if (import.meta.env.VITE_BACKEND_URL) {
+    return import.meta.env.VITE_BACKEND_URL;
+  }
+  
+  // In production (Vercel), always use production backend
+  if (import.meta.env.PROD || window.location.hostname !== 'localhost') {
+    return "https://omegal-50vd.onrender.com";
+  }
+  
+  // Only use localhost in local development
+  return "http://localhost:3000";
+};
 
-// Log the URL being used for debugging
-if (import.meta.env.DEV) {
-  console.log("Backend URL:", URL);
-  console.log("VITE_BACKEND_URL env var:", import.meta.env.VITE_BACKEND_URL);
-}
+const URL = getBackendURL();
+
+// Always log the URL being used for debugging
+console.log("🔗 Connecting to backend:", URL);
+console.log("📦 VITE_BACKEND_URL env var:", import.meta.env.VITE_BACKEND_URL || "NOT SET - using fallback");
+console.log("🌍 Production mode:", import.meta.env.PROD);
+console.log("🌐 Hostname:", window.location.hostname);
 
 export const Room = ({
     name,
