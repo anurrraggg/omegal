@@ -1,44 +1,41 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-// Determine backend URL at runtime
+// Determine backend URL at runtime - MUST be called inside component for proper detection
 const getBackendURL = () => {
   // Priority 1: Environment variable (highest priority)
   const envUrl = import.meta.env.VITE_BACKEND_URL;
-  if (envUrl) {
+  if (envUrl && envUrl.trim() !== '') {
     console.log("🔗 Using backend URL from environment variable:", envUrl);
-    return envUrl;
+    return envUrl.trim();
   }
   
-  // Priority 2: Check if we're on localhost
+  // Priority 2: Check if we're on localhost (development)
   if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
+    const hostname = window.location.hostname.toLowerCase();
     const isLocalhost = hostname === 'localhost' || 
                        hostname === '127.0.0.1' ||
                        hostname === '' ||
+                       hostname === '[::1]' ||
                        hostname.startsWith('192.168.') ||
                        hostname.startsWith('10.') ||
-                       hostname.startsWith('172.');
+                       hostname.startsWith('172.') ||
+                       hostname.includes('.local');
     
     if (isLocalhost) {
-      console.log("🔗 Using localhost backend (development mode)");
+      console.log("🔗 Development mode detected (hostname:", hostname + "), using localhost backend");
       return "http://localhost:3000";
     }
     
-    // Priority 3: Production URL (for Vercel or any other host)
-    console.log("🔗 Using production backend URL (hostname:", hostname + ")");
+    // Priority 3: Production URL (for Vercel or any other production host)
+    console.log("🔗 Production mode detected (hostname:", hostname + "), using production backend");
     return "https://omegal-50vd.onrender.com";
   }
   
-  // Fallback to production
+  // Fallback to production (shouldn't happen in browser)
   console.log("🔗 Fallback: Using production backend URL");
   return "https://omegal-50vd.onrender.com";
 };
-
-const URL = getBackendURL();
-console.log("✅ Final backend URL:", URL);
-console.log("🌐 Current hostname:", typeof window !== 'undefined' ? window.location.hostname : 'N/A');
-console.log("📦 Environment variable:", import.meta.env.VITE_BACKEND_URL || "NOT SET");
 
 export const Room = ({
     name,
@@ -64,8 +61,20 @@ export const Room = ({
     const socketRef = useRef<Socket | null>(null);
     const roomIdRef = useRef<string | null>(null);
 
+    // Get backend URL at runtime inside component
+    const backendURL = getBackendURL();
+    
+    // Log for debugging
     useEffect(() => {
-        const socket = io(URL, {
+        console.log("✅ Room component initialized");
+        console.log("🔗 Backend URL:", backendURL);
+        console.log("🌐 Current hostname:", window.location.hostname);
+        console.log("🌐 Current origin:", window.location.origin);
+        console.log("📦 VITE_BACKEND_URL:", import.meta.env.VITE_BACKEND_URL || "NOT SET");
+    }, []);
+
+    useEffect(() => {
+        const socket = io(backendURL, {
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
