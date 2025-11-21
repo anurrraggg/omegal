@@ -1,24 +1,39 @@
 import { Socket } from "socket.io";
 import http from "node:http";
 import express from "express";
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
 import { Server } from "socket.io";
 import { UserManager } from "./managers/Usermanager";
 
 const app = express();
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://omegal-indol.vercel.app";
 
-app.use(cors({
-  origin: FRONTEND_URL,
+const FRONTEND_URLS =
+  process.env.FRONTEND_URLS ||
+  process.env.FRONTEND_URL ||
+  "https://omegal-indol.vercel.app";
+
+const allowedOrigins = FRONTEND_URLS.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    console.warn(`❌ Blocked CORS request from origin: ${origin}`);
+    return callback(new Error("Not allowed by CORS"));
+  },
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: FRONTEND_URL,
-    methods: ["GET", "POST"],
-    credentials: true
+    ...corsOptions,
+    methods: ["GET", "POST"]
   }
 });
 
@@ -49,5 +64,5 @@ io.on("connection", (socket: Socket) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
-  console.log(`CORS enabled for: ${FRONTEND_URL}`);
+  console.log("CORS enabled for origins:", allowedOrigins);
 });
