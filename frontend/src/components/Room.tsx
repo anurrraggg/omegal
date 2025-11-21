@@ -3,24 +3,42 @@ import { io, Socket } from "socket.io-client";
 
 // Determine backend URL at runtime
 const getBackendURL = () => {
+  // Priority 1: Environment variable (highest priority)
   const envUrl = import.meta.env.VITE_BACKEND_URL;
   if (envUrl) {
+    console.log("🔗 Using backend URL from environment variable:", envUrl);
     return envUrl;
   }
   
-  const isLocalhost = typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || 
-     window.location.hostname === '127.0.0.1' ||
-     window.location.hostname === '');
-  
-  if (isLocalhost) {
-    return "http://localhost:3000";
+  // Priority 2: Check if we're on localhost
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || 
+                       hostname === '127.0.0.1' ||
+                       hostname === '' ||
+                       hostname.startsWith('192.168.') ||
+                       hostname.startsWith('10.') ||
+                       hostname.startsWith('172.');
+    
+    if (isLocalhost) {
+      console.log("🔗 Using localhost backend (development mode)");
+      return "http://localhost:3000";
+    }
+    
+    // Priority 3: Production URL (for Vercel or any other host)
+    console.log("🔗 Using production backend URL (hostname:", hostname + ")");
+    return "https://omegal-50vd.onrender.com";
   }
   
+  // Fallback to production
+  console.log("🔗 Fallback: Using production backend URL");
   return "https://omegal-50vd.onrender.com";
 };
 
 const URL = getBackendURL();
+console.log("✅ Final backend URL:", URL);
+console.log("🌐 Current hostname:", typeof window !== 'undefined' ? window.location.hostname : 'N/A');
+console.log("📦 Environment variable:", import.meta.env.VITE_BACKEND_URL || "NOT SET");
 
 export const Room = ({
     name,
