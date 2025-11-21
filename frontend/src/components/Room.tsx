@@ -21,6 +21,13 @@ export const Room = ({
 
     useEffect(() => {
         const socket = io(URL);
+        
+        // Emit join event when socket connects
+        socket.on("connect", () => {
+            console.log("Connected to server, joining room as:", name);
+            socket.emit("join", { name });
+        });
+        
         socket.on('send-offer', async ({roomId}) => {
             console.log("sending offer");
             setLobby(false);

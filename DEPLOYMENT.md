@@ -48,10 +48,13 @@ After deployment, you'll need to add an environment variable:
 2. Navigate to "Environment Variables"
 3. Add:
    - **Name:** `VITE_BACKEND_URL`
-   - **Value:** `https://your-backend-url.onrender.com` (you'll get this after deploying backend)
+   - **Value:** `https://omegal-50vd.onrender.com` (your Render backend URL)
    - Apply to: Production, Preview, and Development
 
-4. Redeploy your frontend after adding the environment variable
+4. **IMPORTANT:** Redeploy your frontend after adding/updating the environment variable
+   - Go to the Deployments tab
+   - Click the three dots on the latest deployment
+   - Select "Redeploy"
 
 ## Backend Deployment (Render)
 
@@ -76,7 +79,9 @@ After deployment, you'll need to add an environment variable:
 2. Add the following environment variables:
    - **NODE_ENV:** `production`
    - **PORT:** `3000` (Render will override this automatically, but good to set)
-   - **FRONTEND_URL:** `https://your-frontend-url.vercel.app` (your Vercel frontend URL)
+   - **FRONTEND_URL:** `https://omegal-indol.vercel.app` (your Vercel frontend URL)
+
+**Note:** The `render.yaml` file has been updated with the correct FRONTEND_URL. If you're using Blueprint deployment, it should be automatically set.
 
 ### Step 3: Alternative - Using render.yaml
 
@@ -89,10 +94,11 @@ If you prefer using the `render.yaml` file:
 
 ### Important Notes:
 
-- After deploying backend, copy the Render URL (e.g., `https://omegal-backend.onrender.com`)
-- Update the `VITE_BACKEND_URL` in Vercel with this backend URL
-- Redeploy frontend after updating the environment variable
-- Also update `FRONTEND_URL` in Render with your Vercel frontend URL
+- **Backend URL:** `https://omegal-50vd.onrender.com`
+- **Frontend URL:** `https://omegal-indol.vercel.app`
+- Make sure `VITE_BACKEND_URL` in Vercel is set to: `https://omegal-50vd.onrender.com`
+- Make sure `FRONTEND_URL` in Render is set to: `https://omegal-indol.vercel.app`
+- **Always redeploy after updating environment variables** - they won't take effect until you redeploy
 
 ## Testing Deployment
 
@@ -118,4 +124,5 @@ If you prefer using the `render.yaml` file:
 - Ensure both frontend and backend URLs use HTTPS (not HTTP)
 - Check CORS configuration allows your frontend origin
 - Verify Socket.io CORS settings include your frontend URL
+
 

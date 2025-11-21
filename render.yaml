@@ -12,6 +12,6 @@ services:
       - key: PORT
         value: 3000
       - key: FRONTEND_URL
-        value: https://your-frontend-url.vercel.app
+        value: https://omegal-indol.vercel.app
         sync: false
 
