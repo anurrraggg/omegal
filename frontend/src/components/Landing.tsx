@@ -88,7 +88,7 @@ export const Landing = () => {
 
                 <form className="landing-form" onSubmit={handleJoin}>
                     <p className="eyebrow">Omegal Live</p>
-                    <h1>Jump into a minimalist video chat</h1>
+                    <h1>Jump into a video chat</h1>
                     <p className="muted">
                         Share your name, allow camera access, and we’ll match you with someone in seconds.
                     </p>
