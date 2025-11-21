@@ -5,16 +5,22 @@ import { io } from "socket.io-client";
 // Priority: 1) Environment variable, 2) Check if we're on localhost, 3) Use production
 const getBackendURL = () => {
   // If environment variable is set, use it (highest priority)
-  if (import.meta.env.VITE_BACKEND_URL) {
-    return import.meta.env.VITE_BACKEND_URL;
+  const envUrl = import.meta.env.VITE_BACKEND_URL;
+  if (envUrl) {
+    return envUrl;
   }
   
-  // If running on localhost, use local backend
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  // Check if we're running on localhost (local development)
+  const isLocalhost = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || 
+     window.location.hostname === '127.0.0.1' ||
+     window.location.hostname === '');
+  
+  if (isLocalhost) {
     return "http://localhost:3000";
   }
   
-  // Otherwise, we're in production (Vercel), use production backend
+  // We're in production (Vercel or any other host), use production backend
   return "https://omegal-50vd.onrender.com";
 };
 
