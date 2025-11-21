@@ -1,21 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
-// Determine backend URL
-// Priority: 1) Environment variable, 2) Production fallback, 3) Localhost for dev
+// Determine backend URL at runtime
+// Priority: 1) Environment variable, 2) Check if we're on localhost, 3) Use production
 const getBackendURL = () => {
-  // If environment variable is set, use it
+  // If environment variable is set, use it (highest priority)
   if (import.meta.env.VITE_BACKEND_URL) {
     return import.meta.env.VITE_BACKEND_URL;
   }
   
-  // In production (Vercel), always use production backend
-  if (import.meta.env.PROD || window.location.hostname !== 'localhost') {
-    return "https://omegal-50vd.onrender.com";
+  // If running on localhost, use local backend
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return "http://localhost:3000";
   }
   
-  // Only use localhost in local development
-  return "http://localhost:3000";
+  // Otherwise, we're in production (Vercel), use production backend
+  return "https://omegal-50vd.onrender.com";
 };
 
 const URL = getBackendURL();
