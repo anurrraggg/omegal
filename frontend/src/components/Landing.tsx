@@ -152,7 +152,7 @@ export const Landing = () => {
                             </>
                         ) : (
                             <>
-                                <span>🚀</span>
+                                <span></span>
                                 Start Chatting
                             </>
                         )}
