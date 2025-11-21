@@ -25,16 +25,24 @@ const io = new Server(server, {
 const userManager = new UserManager();
 
 io.on("connection", (socket: Socket) => {
-  console.log("A user connected:", socket.id);
+  console.log("✅ User connected:", socket.id);
 
   socket.on("join", ({ name }: { name: string }) => {
-    console.log("User joined:", name, socket.id);
-    userManager.addUser(name, socket);
+    if (!name || name.trim().length === 0) {
+      socket.emit("error", { message: "Name is required" });
+      return;
+    }
+    console.log("👤 User joined:", name, socket.id);
+    userManager.addUser(name.trim(), socket);
   });
 
-  socket.on("disconnect", () => {
-    console.log("A user disconnected:", socket.id);
+  socket.on("disconnect", (reason) => {
+    console.log("❌ User disconnected:", socket.id, "Reason:", reason);
     userManager.removeUser(socket.id);
+  });
+
+  socket.on("error", (error) => {
+    console.error("Socket error:", error);
   });
 });
 

@@ -16,16 +16,24 @@ export const Landing = () => {
     const getCam = async () => {
         try {
             setIsLoadingCam(true);
+            setCamError(null);
             const stream = await window.navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: "user"
+                },
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }
             });
             streamRef.current = stream;
 
             const audioTrack = stream.getAudioTracks()[0];
             const videoTrack = stream.getVideoTracks()[0];
 
-            setCamError(null);
             setLocalAudioTrack(audioTrack);
             setlocalVideoTrack(videoTrack);
 
@@ -33,9 +41,15 @@ export const Landing = () => {
                 videoRef.current.srcObject = new MediaStream([videoTrack]);
                 await videoRef.current.play();
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Unable to start camera", error);
-            setCamError("We couldn’t access your camera. Check permissions and try again.");
+            if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
+                setCamError("Camera and microphone access is required. Please allow access and refresh the page.");
+            } else if (error.name === "NotFoundError" || error.name === "DevicesNotFoundError") {
+                setCamError("No camera or microphone found. Please connect a device and try again.");
+            } else {
+                setCamError("We couldn't access your camera. Please check your device permissions and try again.");
+            }
         } finally {
             setIsLoadingCam(false);
         }
@@ -56,6 +70,10 @@ export const Landing = () => {
         if (!name.trim()) {
             return;
         }
+        if (!localVideoTrack && !camError) {
+            setCamError("Please wait for camera to initialize...");
+            return;
+        }
         setJoined(true);
     };
 
@@ -63,8 +81,18 @@ export const Landing = () => {
     return (
         <main className="page page--landing">
             <section className="landing-card">
+                <div className="landing-header">
+                    <h1 className="landing-title">
+                        <span className="title-icon">💬</span>
+                        Omegal Live
+                    </h1>
+                    <p className="landing-subtitle">
+                        Connect with people from around the world through anonymous video chats
+                    </p>
+                </div>
+
                 <div className="video-stack">
-                    <div className="eyebrow">Preview</div>
+                    <div className="eyebrow">Camera Preview</div>
                     <div className="video-shell">
                         <video
                             ref={videoRef}
@@ -75,47 +103,66 @@ export const Landing = () => {
                         />
                         {isLoadingCam && (
                             <div className="video-overlay">
-                                <span>Starting camera…</span>
+                                <div className="loading-spinner"></div>
+                                <span>Starting your camera...</span>
                             </div>
                         )}
                         {!isLoadingCam && !localVideoTrack && (
                             <div className="video-overlay video-overlay--error">
-                                <span>This preview needs camera access.</span>
+                                <span className="error-icon">⚠️</span>
+                                <span>Camera access needed</span>
+                                <button className="retry-btn" onClick={getCam}>
+                                    Try Again
+                                </button>
                             </div>
                         )}
                     </div>
                 </div>
 
                 <form className="landing-form" onSubmit={handleJoin}>
-                    <p className="eyebrow">Omegal Live</p>
-                    <h1>Jump into a video chat</h1>
-                    <p className="muted">
-                        Share your name, allow camera access, and we’ll match you with someone in seconds.
-                    </p>
-
                     <label className="field">
-                        <span className="field-label">Display name</span>
+                        <span className="field-label">What should we call you?</span>
                         <input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="e.g. Alex"
+                            placeholder="Enter your name (e.g. Alex)"
                             className="text-input"
                             type="text"
+                            maxLength={20}
+                            autoComplete="off"
                         />
                     </label>
 
-                    {camError && <p className="form-error">{camError}</p>}
+                    {camError && (
+                        <div className="form-error">
+                            <span>⚠️</span>
+                            <span>{camError}</span>
+                        </div>
+                    )}
 
                     <button
                         type="submit"
                         className="primary-btn"
-                        disabled={!name.trim() || !localVideoTrack}
+                        disabled={!name.trim() || isLoadingCam || (!localVideoTrack && !camError)}
                     >
-                        Enter the room
+                        {isLoadingCam ? (
+                            <>
+                                <span className="btn-spinner"></span>
+                                Starting camera...
+                            </>
+                        ) : (
+                            <>
+                                <span>🚀</span>
+                                Start Chatting
+                            </>
+                        )}
                     </button>
-                    <p className="hint">
-                        You can mute or leave anytime. Camera preview stays local until you connect.
-                    </p>
+                    
+                    <div className="hint-box">
+                        <p className="hint">
+                            💡 <strong>Privacy first:</strong> Your camera preview stays local until you connect with someone. You can mute or leave anytime.
+                        </p>
+                    </div>
                 </form>
             </section>
         </main>
