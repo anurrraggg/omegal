@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
-const URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+// Use production backend URL as fallback if env var is not set
+const URL = import.meta.env.VITE_BACKEND_URL || 
+  (import.meta.env.PROD ? "https://omegal-50vd.onrender.com");
+
+// Log the URL being used for debugging
+if (import.meta.env.DEV) {
+  console.log("Backend URL:", URL);
+  console.log("VITE_BACKEND_URL env var:", import.meta.env.VITE_BACKEND_URL);
+}
 
 export const Room = ({
     name,
