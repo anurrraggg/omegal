@@ -103,9 +103,11 @@ export const Room = ({
             }
         });
         
-        socket.on('send-offer', async ({roomId}) => {
+        socket.on('send-offer', async ({roomId, yourName, remoteName}) => {
             console.log("📤 Sending offer for room:", roomId);
+            console.log("👤 Your name:", yourName, "Remote name:", remoteName);
             setLobby(false);
+            setRemoteUserName(remoteName);
             roomIdRef.current = roomId;
             
             const pc = new RTCPeerConnection({
@@ -304,29 +306,32 @@ export const Room = ({
             <section className="room">
                 <header className="room-header">
                     <div className="room-header-info">
-                        <p className="eyebrow">Connected as</p>
-                        <h2>{name || "Guest"}</h2>
+                        {lobby ? (
+                            <>
+                                <p className="eyebrow">Waiting to connect</p>
+                                <h2>{name || "Guest"}</h2>
+                            </>
+                        ) : (
+                            <>
+                                <p className="eyebrow">Connected</p>
+                                <h2>{name || "Guest"} <span className="name-separator">•</span> {remoteUserName || "Stranger"}</h2>
+                            </>
+                        )}
                     </div>
                     <div className="room-header-status">
                         <span className={`status-pill ${lobby ? "status-pill--idle" : "status-pill--live"}`}>
                             {lobby ? (
                                 <>
                                     <span className="status-dot"></span>
-                                    Finding someone...
+                                    Searching...
                                 </>
                             ) : (
                                 <>
                                     <span className="status-dot status-dot--live"></span>
-                                    Connected
+                                    Live
                                 </>
                             )}
                         </span>
-                        {!isConnected && (
-                            <span className="status-pill status-pill--error">
-                                <span className="status-dot status-dot--error"></span>
-                                Disconnected
-                            </span>
-                        )}
                     </div>
                 </header>
 
@@ -340,7 +345,7 @@ export const Room = ({
                 <div className="video-grid">
                     <div className="video-tile">
                         <div className="video-label">
-                            <span>You</span>
+                            <span>{name || "You"}</span>
                             {isMuted && <span className="mute-indicator">🔇</span>}
                             {isVideoOff && <span className="video-off-indicator">📷</span>}
                         </div>
@@ -365,7 +370,7 @@ export const Room = ({
 
                     <div className="video-tile">
                         <div className="video-label">
-                            {lobby ? "Waiting..." : (remoteUserName || "Stranger")}
+                            {lobby ? "Waiting..." : (remoteUserName || "Connecting...")}
                         </div>
                         <div className="video-shell remote-shell">
                             <video

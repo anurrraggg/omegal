@@ -21,11 +21,15 @@ export class RoomManager {
         })
 
         user1.socket.emit("send-offer", {
-            roomId
+            roomId,
+            yourName: user1.name,
+            remoteName: user2.name
         })
 
         user2.socket.emit("send-offer", {
-            roomId
+            roomId,
+            yourName: user2.name,
+            remoteName: user1.name
         })
     }
 
